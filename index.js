@@ -5,10 +5,25 @@
  * 4. 获取值req.body
  */
 
+ /*
+  *1. 安装cookie-parser npm install cookie-parser --save
+  *2. 引入require('cookie-parser')
+  *3. 设置中间件app.use(cookieParser())
+  *4. 设置cookie: res.cookie('name','xiaozheng')
+  *5. 获取cookie: req.cookies
+  * */
+
+  /**
+   * 1. 安装express-session npm install express-session --save
+   * 2. 引入require('express-session');
+   * 3. 设置中间件app.use(session({secret: 'keyboard cat',cookie: { maxAge: 60000 }}))
+   * 4. 设置session值req.session.xxx
+   * 5. 获取session值req.session.xxx
+   */
 
 var bodyParser = require('body-parser');
-// var session      = require('express-session');
-// var cookieParser = require('cookie-parser');
+var session      = require('express-session');
+var cookieParser = require('cookie-parser');
 
 var http = require('http')
 // var server = http.createServer(function(req, res) {
@@ -21,6 +36,17 @@ var http = require('http')
 var express = require('express')
 var app = express()
 http.createServer(app)
+
+// 设置中间件
+app.use(cookieParser())
+
+// 设置session中间件
+app.use(session({ 
+  name: 'sessioncid',
+  secret: 'keyboard cat', 
+  cookie: { maxAge: 5000 },
+  rolling:true
+}))
 
 // 0. 内置中间件
 app.use('/new', express.static(__dirname + '/public'))
@@ -41,10 +67,30 @@ app.use(bodyParser.urlencoded({ extended: false }))
 //   next()
 // })
 
+
+
+// cookie-parser
+app.get('/set', function(req,res) {
+  res.cookie('name','xiaozheng')
+  res.send('cookie')
+})
+
+app.get('/list', function(req,res) {
+  console.log(req.cookies.name)
+  res.render('cookie', {name: req.cookies.name})
+})
+
+app.get('/show', function(req, res) {
+  console.log(req.session.userinfo)
+  res.render('dologin', { name: req.session.userinfo })
+})
+
 // 登录
 app.get('/login', function (req, res) {
+  req.session.userinfo = '123456'
   res.render('login')
 })
+
 // 登录成功
 app.post('/dologin', function (req, res) {
   console.log(req.body.name)
